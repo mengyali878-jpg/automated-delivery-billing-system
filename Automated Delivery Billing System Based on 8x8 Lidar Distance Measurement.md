@@ -12,7 +12,7 @@ This Project uses the **UNIHIKER UNIHIKER K10** as the Board, with a **matrix la
 
 # 2\. Project Effect
 
-[Automatic delivery system\.mp4](Images_attachments/Automatic%20delivery%20system.mp4)
+Watch the demo on YouTube: [Automatic delivery system](https://youtu.be/JUHfYTu8ryg)
 
 # 三、项目制作准备
 

@@ -75,7 +75,6 @@ learning, depth filtering, background subtraction, boundary extraction and trian
 ## Demo
 
 [![Watch the demo](https://img.youtube.com/vi/JUHfYTu8ryg/maxresdefault.jpg)](https://youtu.be/JUHfYTu8ryg)
-
 The demo video is hosted on YouTube rather than committed here, to keep the repository small.
 
 ## Getting Started
