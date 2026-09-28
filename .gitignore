@@ -1,0 +1,30 @@
+# Demo video — hosted on YouTube instead of the repository
+# https://youtu.be/JUHfYTu8ryg
+Images_attachments/Automatic delivery system.mp4
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+
+# Arduino build artifacts
+build/
+*.hex
+*.elf
+*.bin
+*.map
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# WorkBuddy workspace metadata
+.workbuddy/

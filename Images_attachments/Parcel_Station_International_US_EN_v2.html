@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Parcel Station · International Shipping Console</title>
+<style>
+:root{
+  --bg:#f2f6fb;
+  --card:#ffffff;
+  --text:#10213b;
+  --muted:#6f8098;
+  --line:#e3ebf5;
+  --blue:#2979ff;
+  --blue2:#1e63d6;
+  --blue3:#0d4fa7;
+  --cyan:#22a7f0;
+  --green:#20bf78;
+  --yellow:#f7c948;
+  --red:#ff5b66;
+  --shadow:0 16px 45px rgba(38,72,115,.10);
+  --radius:20px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:
+  radial-gradient(circle at 8% 2%,rgba(41,121,255,.08),transparent 25%),
+  radial-gradient(circle at 94% 12%,rgba(38,180,255,.08),transparent 22%),
+  var(--bg);
+  color:var(--text);font-family:Inter,"Segoe UI","Microsoft YaHei",system-ui,sans-serif;
+}
+body{min-height:100vh}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.app{max-width:1580px;margin:auto;padding:20px 26px 34px}
+.topbar{
+  height:70px;display:flex;align-items:center;justify-content:space-between;
+  background:rgba(255,255,255,.8);border:1px solid rgba(226,235,246,.9);
+  border-radius:18px;padding:0 20px;margin-bottom:20px;box-shadow:0 10px 30px rgba(44,78,118,.07);
+  backdrop-filter:blur(12px)
+}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{
+  width:44px;height:44px;border-radius:14px;background:linear-gradient(145deg,#3388ff,#5269ff);
+  display:grid;place-items:center;box-shadow:0 10px 22px rgba(48,116,255,.28)
+}
+.logo svg{width:24px;height:24px}
+.brand-title{font-size:21px;font-weight:900;letter-spacing:-.4px}
+.brand-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.top-actions{display:flex;align-items:center;gap:10px}
+.status{
+  display:flex;align-items:center;gap:8px;padding:10px 14px;background:#fff;border:1px solid var(--line);
+  border-radius:999px;font-size:12px;font-weight:800;min-width:94px;justify-content:center
+}
+.status-dot{width:9px;height:9px;border-radius:50%;background:#aab4c2}
+.status.connected .status-dot{background:var(--green);box-shadow:0 0 0 5px rgba(32,191,120,.12)}
+.status.connecting .status-dot{background:var(--yellow);animation:pulse 1s infinite}
+.status.error .status-dot{background:var(--red)}
+@keyframes pulse{50%{opacity:.45;transform:scale(.85)}}
+.btn{
+  border:0;border-radius:12px;padding:11px 16px;font-weight:800;font-size:13px;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.18s
+}
+.btn:hover{transform:translateY(-1px)}
+.btn.primary{background:linear-gradient(135deg,var(--blue),#4265ff);color:#fff;box-shadow:0 9px 20px rgba(41,121,255,.22)}
+.btn.light{background:#eef5ff;color:#1f6ed2}
+.btn.ghost{background:#fff;color:#263952;border:1px solid var(--line)}
+.btn.danger{background:#fff1f2;color:#c74755;border:1px solid #ffd8dc}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+.main-grid{display:grid;grid-template-columns:1.18fr .92fr;gap:20px}
+.card{background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.measure-card{padding:22px;min-height:430px}
+.section-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+.section-title{font-size:17px;font-weight:900}
+.section-sub{font-size:12px;color:var(--muted);margin-top:4px}
+.device-pill{padding:8px 11px;background:#eef5ff;color:#2c75cc;border-radius:10px;font-size:11px;font-weight:800}
+.measure-body{display:grid;grid-template-columns:200px 1fr;gap:28px;align-items:center}
+.matrix-wrap{display:flex;flex-direction:column;align-items:center}
+.matrix{
+  width:188px;height:188px;padding:8px;border-radius:16px;background:#0e2e48;
+  display:grid;grid-template-columns:repeat(8,1fr);gap:3px;box-shadow:0 14px 26px rgba(13,46,72,.2)
+}
+.cell{border-radius:2px;background:#27a6f2;transition:.15s}
+.matrix.scanning .cell:nth-child(3n+1),
+.matrix.scanning .cell:nth-child(4n+2){background:var(--yellow)}
+.matrix.detected .cell:nth-child(n+19):nth-child(-n+46){background:#52e78e}
+.matrix.detected .cell:nth-child(8n+1),
+.matrix.detected .cell:nth-child(8n+8){background:#27a6f2}
+.matrix-caption{margin-top:12px;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.mini-dot{width:8px;height:8px;border-radius:50%;background:var(--green)}
+.measure-info .eyebrow{font-size:11px;color:var(--muted);font-weight:900;letter-spacing:.08em}
+.dims{font-size:38px;font-weight:950;letter-spacing:-1.2px;margin:9px 0 6px;white-space:nowrap}
+.hint{font-size:12px;color:var(--muted)}
+.metric-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:24px}
+.metric{
+  border:1px solid var(--line);border-radius:15px;padding:15px 14px;background:linear-gradient(180deg,#fff,#f8fbff)
+}
+.metric-k{font-size:11px;color:var(--muted);font-weight:800}
+.metric-v{font-size:23px;font-weight:950;margin-top:6px}
+.metric.actual .metric-v{color:var(--green)}
+.metric.charge .metric-v{color:var(--blue)}
+.measure-footer{
+  margin-top:18px;padding-top:15px;border-top:1px solid var(--line);
+  display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:11px;color:var(--muted)
+}
+
+.quote-card{
+  min-height:430px;padding:24px;color:#fff;position:relative;overflow:hidden;
+  background:linear-gradient(145deg,#0f59c8,#2089ff 58%,#1667d2);
+  box-shadow:0 20px 55px rgba(32,107,211,.25)
+}
+.quote-card:before,.quote-card:after{
+  content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.08)
+}
+.quote-card:before{width:270px;height:270px;right:-85px;top:-100px}
+.quote-card:after{width:210px;height:210px;left:-120px;bottom:-120px}
+.quote-head{display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;z-index:1}
+.quote-head-left{display:flex;align-items:center;gap:12px}
+.quote-icon{
+  width:46px;height:46px;border-radius:14px;background:rgba(255,255,255,.14);display:grid;place-items:center
+}
+.quote-title{font-size:23px;font-weight:950}
+.quote-sub{font-size:12px;color:rgba(255,255,255,.78);margin-top:3px}
+.quote-badge{font-size:11px;padding:8px 10px;border:1px solid rgba(255,255,255,.25);border-radius:10px;background:rgba(255,255,255,.1)}
+.quote-panel{
+  margin-top:22px;padding:18px;border-radius:16px;background:rgba(5,44,102,.34);border:1px solid rgba(255,255,255,.13);
+  position:relative;z-index:1
+}
+.quote-line{display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:13px;color:rgba(255,255,255,.82)}
+.quote-line strong{font-size:17px;color:#fff}
+.quote-price-row{display:flex;justify-content:space-between;align-items:end;margin-top:8px;padding-top:12px;border-top:1px solid rgba(255,255,255,.13)}
+.quote-price-label{font-size:12px;color:rgba(255,255,255,.75)}
+.quote-price{font-size:42px;font-weight:950;letter-spacing:-1.8px}
+.quote-price.pending{font-size:25px;color:rgba(255,255,255,.78);letter-spacing:-.5px}
+.quote-tip{
+  margin-top:14px;padding:12px 13px;border-radius:12px;background:rgba(255,255,255,.1);
+  color:rgba(255,255,255,.88);font-size:11px;line-height:1.55;position:relative;z-index:1
+}
+
+.shipping-card{margin-top:20px;padding:22px}
+.shipping-grid{display:grid;grid-template-columns:1fr 1fr .86fr;gap:16px}
+.form-box{border:1px solid var(--line);border-radius:16px;padding:16px;background:#fbfdff}
+.form-box-title{font-size:14px;font-weight:900;margin-bottom:12px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field{margin-top:10px}
+.field label{display:block;font-size:10px;color:var(--muted);font-weight:800;margin-bottom:5px}
+input,textarea,select{
+  width:100%;border:1px solid #dce6f2;border-radius:11px;background:#fff;padding:10px 11px;outline:none;color:var(--text)
+}
+input:focus,textarea:focus,select:focus{border-color:#86b9ff;box-shadow:0 0 0 4px rgba(41,121,255,.08)}
+textarea{min-height:72px;resize:vertical}
+.form-actions{display:flex;gap:9px;justify-content:flex-end;margin-top:12px;flex-wrap:wrap}
+
+.modal-backdrop{
+  position:fixed;inset:0;background:rgba(7,20,38,.38);backdrop-filter:blur(4px);
+  display:none;align-items:center;justify-content:center;padding:18px;z-index:99
+}
+.modal-backdrop.open{display:flex}
+.modal{width:min(520px,100%);background:white;border-radius:20px;padding:22px;box-shadow:0 28px 80px rgba(0,0,0,.22)}
+.modal h2{margin:0 0 8px;font-size:20px}
+.modal p{font-size:12px;color:var(--muted);line-height:1.65}
+.port-info{padding:12px 14px;border-radius:12px;background:#f3f7fc;font-size:12px;color:#38506d;margin-top:12px}
+.modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:16px}
+.toast{
+  position:fixed;right:24px;bottom:24px;background:#12263a;color:#fff;padding:12px 15px;border-radius:12px;
+  font-size:12px;font-weight:800;box-shadow:0 18px 40px rgba(0,0,0,.22);opacity:0;transform:translateY(12px);
+  transition:.2s;pointer-events:none;z-index:120
+}
+.toast.show{opacity:1;transform:none}
+
+@media(max-width:1100px){
+  .main-grid{grid-template-columns:1fr}
+  .shipping-grid{grid-template-columns:1fr 1fr}
+  .shipping-grid .form-box:last-child{grid-column:1/-1}
+}
+@media(max-width:760px){
+  .app{padding:12px}
+  .topbar{height:auto;padding:14px;align-items:flex-start}
+  .brand-sub{display:none}
+  .measure-body{grid-template-columns:1fr}
+  .matrix{width:160px;height:160px}
+  .dims{font-size:28px;text-align:center;white-space:normal}
+  .measure-info .eyebrow,.hint{text-align:center}
+  .metric-row{grid-template-columns:1fr}
+  .shipping-grid{grid-template-columns:1fr}
+  .shipping-grid .form-box:last-child{grid-column:auto}
+  .quote-price{font-size:34px}
+}
+
+/* ===================== UI PRO V2 ===================== */
+:root{
+  --bg:#eef4fb;
+  --card:#ffffff;
+  --text:#0d1d38;
+  --muted:#6a7d98;
+  --line:#dfe8f3;
+  --blue:#2878ff;
+  --blue2:#1d67d9;
+  --blue3:#0e4ea4;
+  --green:#14bd73;
+  --shadow:0 18px 48px rgba(42,76,118,.10);
+  --radius:22px;
+}
+
+html,body{
+  background:
+    radial-gradient(circle at 10% 0%,rgba(53,137,255,.09),transparent 26%),
+    radial-gradient(circle at 92% 10%,rgba(53,171,255,.08),transparent 24%),
+    linear-gradient(180deg,#f4f8fd 0%,#edf3fa 100%);
+  color:var(--text);
+}
+
+body{
+  min-width:1180px;
+}
+
+.app{
+  max-width:1660px;
+  margin:0 auto;
+  padding:14px 26px 28px;
+}
+
+/* Header */
+.topbar{
+  height:76px;
+  padding:0 22px;
+  margin-bottom:18px;
+  border-radius:18px;
+  background:rgba(255,255,255,.92);
+  border:1px solid rgba(219,230,242,.95);
+  box-shadow:0 12px 34px rgba(38,72,115,.08);
+}
+.brand{gap:16px}
+.logo{
+  width:46px;height:46px;border-radius:13px;
+  background:linear-gradient(145deg,#2e80ff,#4e64ff);
+  box-shadow:0 10px 22px rgba(48,116,255,.26);
+}
+.logo svg{width:25px;height:25px}
+.brand-title{
+  font-size:24px;
+  line-height:1.05;
+  font-weight:950;
+  letter-spacing:-.7px;
+}
+.brand-sub{
+  font-size:13px;
+  margin-top:5px;
+  color:#7387a2;
+}
+.status{
+  padding:11px 16px;
+  min-width:100px;
+  font-size:13px;
+  box-shadow:0 6px 18px rgba(30,55,88,.04);
+}
+.btn{
+  min-height:40px;
+  border-radius:12px;
+  padding:10px 17px;
+  font-size:13px;
+}
+.top-actions .btn.primary{
+  min-width:116px;
+  font-size:14px;
+}
+
+/* Top cards */
+.main-grid{
+  grid-template-columns:minmax(0,1.22fr) minmax(500px,.88fr);
+  gap:20px;
+}
+.card{
+  border:1px solid rgba(219,229,241,.95);
+  box-shadow:var(--shadow);
+}
+.measure-card,
+.quote-card{
+  min-height:478px;
+}
+.measure-card{
+  padding:26px 26px 22px;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(44,137,255,.055),transparent 34%),
+    #fff;
+}
+
+.section-title-row{
+  margin-bottom:20px;
+}
+.section-title{
+  position:relative;
+  padding-left:17px;
+  font-size:22px;
+  line-height:1.1;
+  letter-spacing:-.45px;
+  font-weight:950;
+}
+.section-title::before{
+  content:"";
+  position:absolute;
+  left:0;top:2px;
+  width:5px;height:24px;
+  border-radius:5px;
+  background:linear-gradient(180deg,#1686ff,#3e65ff);
+  box-shadow:0 4px 10px rgba(39,121,255,.22);
+}
+.section-sub{
+  padding-left:17px;
+  font-size:13px;
+  margin-top:7px;
+  color:#6f819c;
+}
+.device-pill{
+  padding:9px 13px;
+  font-size:12px;
+  border-radius:10px;
+  background:#eef5ff;
+  color:#1d6fd5;
+}
+
+.measure-body{
+  grid-template-columns:235px 1fr;
+  gap:34px;
+  align-items:center;
+}
+.matrix{
+  width:224px;
+  height:224px;
+  padding:9px;
+  gap:3px;
+  border-radius:17px;
+  box-shadow:0 16px 32px rgba(10,44,68,.19);
+}
+.matrix-caption{
+  margin-top:13px;
+  font-size:12px;
+  font-weight:700;
+}
+.mini-dot{width:9px;height:9px}
+
+.measure-info .eyebrow{
+  font-size:13px;
+  letter-spacing:.02em;
+  color:#5f7390;
+}
+.dims{
+  margin:12px 0 7px;
+  font-size:46px;
+  line-height:1.06;
+  font-weight:950;
+  letter-spacing:-1.7px;
+}
+.hint{
+  font-size:13px;
+  color:#7689a4;
+}
+.metric-row{
+  gap:13px;
+  margin-top:28px;
+}
+.metric{
+  min-height:102px;
+  padding:17px 17px 15px;
+  border-radius:15px;
+  background:linear-gradient(180deg,#fff 0%,#f9fbfe 100%);
+  box-shadow:0 6px 20px rgba(30,61,99,.035);
+}
+.metric-k{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:3px 9px;
+  border-radius:8px;
+  background:#f1f5fa;
+  font-size:12px;
+  color:#596d89;
+}
+.metric-v{
+  margin-top:9px;
+  font-size:27px;
+  letter-spacing:-.6px;
+}
+.measure-footer{
+  margin-top:20px;
+  padding-top:17px;
+  font-size:12px;
+}
+.measure-footer strong{color:#536a88}
+.measure-footer .btn{
+  min-width:92px;
+}
+
+/* Quote */
+.quote-card{
+  padding:26px 26px 22px;
+  background:
+    radial-gradient(circle at 102% -4%,rgba(255,255,255,.13),transparent 34%),
+    radial-gradient(circle at -8% 105%,rgba(255,255,255,.075),transparent 32%),
+    linear-gradient(145deg,#0b58c7 0%,#237df0 52%,#1e88ff 100%);
+  border-color:rgba(34,108,214,.15);
+}
+.quote-card:before{width:300px;height:300px;right:-85px;top:-110px}
+.quote-card:after{width:230px;height:230px;left:-120px;bottom:-120px}
+.quote-head-left{gap:14px}
+.quote-icon{
+  width:52px;height:52px;
+  border-radius:14px;
+  font-size:22px;
+  font-weight:900;
+}
+.quote-title{
+  font-size:29px;
+  letter-spacing:-.8px;
+}
+.quote-sub{
+  margin-top:5px;
+  font-size:13px;
+}
+.quote-badge{
+  padding:9px 13px;
+  border-radius:10px;
+  font-size:12px;
+}
+.quote-panel{
+  margin-top:22px;
+  padding:19px 20px 17px;
+  border-radius:16px;
+  background:rgba(5,44,102,.32);
+}
+.quote-line{
+  min-height:39px;
+  padding:8px 0;
+  font-size:15px;
+}
+.quote-line + .quote-line{
+  border-top:1px solid rgba(255,255,255,.07);
+}
+.quote-line strong{
+  font-size:19px;
+  letter-spacing:-.25px;
+}
+.quote-price-row{
+  margin-top:5px;
+  padding-top:15px;
+}
+.quote-price-label{
+  font-size:17px;
+  font-weight:800;
+  color:rgba(255,255,255,.88);
+}
+.quote-price{
+  font-size:48px;
+  letter-spacing:-2px;
+}
+.quote-price.pending{font-size:29px}
+.quote-tip{
+  margin-top:14px;
+  padding:11px 14px;
+  font-size:11.5px;
+  border-radius:11px;
+  line-height:1.55;
+}
+
+/* Shipping information */
+.shipping-card{
+  margin-top:20px;
+  padding:22px 26px 24px;
+}
+.shipping-card .section-title-row{
+  margin-bottom:16px;
+}
+.shipping-card .section-title{
+  font-size:21px;
+}
+.shipping-card .section-title::before{
+  height:23px;
+}
+.shipping-card .section-sub{
+  font-size:12.5px;
+}
+
+.shipping-grid{
+  grid-template-columns:1.08fr 1.08fr .96fr;
+  gap:18px;
+}
+.form-box{
+  min-height:240px;
+  padding:18px 18px 16px;
+  border-radius:16px;
+  background:linear-gradient(180deg,#fbfdff,#f8fbff);
+  border-color:#dce7f3;
+}
+.form-box-title{
+  font-size:17px;
+  margin-bottom:14px;
+  color:#172b48;
+}
+.field{margin-top:11px}
+.field label{
+  margin-bottom:6px;
+  font-size:11.5px;
+  color:#617590;
+}
+input,textarea,select{
+  min-height:43px;
+  padding:10px 12px;
+  border-radius:10px;
+  font-size:14px;
+  color:#14253e;
+}
+textarea{
+  min-height:70px;
+  line-height:1.5;
+}
+.form-actions{
+  gap:10px;
+  margin-top:14px;
+}
+.form-actions .btn{
+  min-width:92px;
+}
+
+/* Modal polish */
+.modal{
+  border:1px solid #dfe8f3;
+  box-shadow:0 30px 90px rgba(10,31,55,.24);
+}
+.modal h2{font-size:22px}
+.modal p{font-size:13px}
+
+/* Desktop focus */
+@media(min-width:1400px){
+  .app{padding-left:34px;padding-right:34px}
+  .measure-body{grid-template-columns:245px 1fr}
+  .matrix{width:230px;height:230px}
+}
+
+
+/* ====== compact header & stronger labels ====== */
+.quote-head-btn{
+  position:relative; z-index:2;
+  border:1px solid rgba(255,255,255,.24);
+  background:rgba(255,255,255,.12);
+  color:#fff;
+  border-radius:12px;
+  padding:9px 14px;
+  font-size:13px;
+  font-weight:900;
+  box-shadow:0 8px 18px rgba(8,30,70,.10);
+}
+.quote-head-btn:hover{transform:translateY(-1px);background:rgba(255,255,255,.16)}
+.measure-info .eyebrow{
+  font-size:17px !important;
+  font-weight:900 !important;
+  color:#304760 !important;
+  letter-spacing:0 !important;
+  margin-bottom:8px;
+}
+.metric-k{
+  display:inline-flex;
+  align-items:center;
+  min-height:28px;
+  padding:5px 10px;
+  border-radius:9px;
+  background:#f1f5fb;
+  font-size:15px !important;
+  line-height:1;
+  color:#50657f !important;
+  font-weight:900 !important;
+}
+.field label{
+  font-size:15px !important;
+  font-weight:900 !important;
+  color:#4b617d !important;
+  margin-bottom:8px !important;
+}
+.quote-line span{
+  font-size:16px;
+  font-weight:900;
+  color:rgba(255,255,255,.88);
+}
+.form-box-title{
+  font-size:18px !important;
+  font-weight:950 !important;
+}
+
+
+/* ===== International v2 additions ===== */
+.address-grid{
+  display:grid;
+  grid-template-columns:1.25fr .75fr;
+  gap:10px;
+}
+.address-grid-3{
+  display:grid;
+  grid-template-columns:1fr .65fr .8fr;
+  gap:10px;
+}
+.rule-note{
+  padding:11px 13px;
+  border-radius:11px;
+  background:#f4f8fd;
+  color:#536b87;
+  font-size:12px;
+  line-height:1.55;
+  margin-top:12px;
+}
+.quote-meta{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.quote-chip{
+  display:inline-flex;
+  padding:6px 9px;
+  border-radius:999px;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.16);
+  font-size:11px;
+  font-weight:800;
+}
+@media(max-width:1100px){
+  .address-grid,.address-grid-3{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8">
+          <path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5z"/>
+          <path d="M4 7.5 12 12l8-4.5M12 12v9"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-title">Parcel Station</div>
+        <div class="brand-sub">K10 International Dimension & Shipping Console</div>
+      </div>
+    </div>
+
+    <div class="top-actions">
+      <div id="serialStatus" class="status">
+        <span class="status-dot"></span>
+        <span id="serialStatusText">Not Connected</span>
+      </div>
+      <button id="serialBtn" class="btn primary">
+        <span>🔌</span><span id="serialBtnText">Connect Serial</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="main-grid">
+    <section class="card measure-card">
+      <div class="section-title-row">
+        <div>
+          <div class="section-title">Real-time Measurement</div>
+          <div class="section-sub">Read package dimensions and weight from the K10 serial port</div>
+        </div>
+        <div id="devicePill" class="device-pill">K10</div>
+      </div>
+
+      <div class="measure-body">
+        <div class="matrix-wrap">
+          <div id="matrix" class="matrix"></div>
+          <div class="matrix-caption">
+            <span class="mini-dot"></span>
+            <span id="matrixCaption">Waiting for measurement data</span>
+          </div>
+        </div>
+
+        <div class="measure-info">
+          <div class="eyebrow">Package Size</div>
+          <div id="dims" class="dims">-- × -- × -- in</div>
+          <div id="measureHint" class="hint">Connect K10 and place a parcel on the platform</div>
+
+          <div class="metric-row">
+            <div class="metric actual">
+              <div class="metric-k">Actual Weight</div>
+              <div id="actualWt" class="metric-v">-- lb</div>
+            </div>
+            <div class="metric">
+              <div class="metric-k">Dimensional Weight</div>
+              <div id="volumeWt" class="metric-v">-- lb</div>
+            </div>
+            <div class="metric charge">
+              <div class="metric-k">Billable Weight</div>
+              <div id="chargeWt" class="metric-v">-- lb</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="measure-footer">
+        <span>Last Update: <strong id="lastUpdate">--</strong></span>
+        <div style="display:flex;gap:8px">
+          <button id="demoBtn" class="btn light">Demo Data</button>
+          <button id="clearMeasureBtn" class="btn ghost">Clear Measurement</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card quote-card">
+      <div class="quote-head">
+        <div class="quote-head-left">
+          <div class="quote-icon">$</div>
+          <div>
+            <div class="quote-title">Shipping Quote</div>
+            <div class="quote-sub">Offline estimate using carrier, service, ZIP/postal code, and billable weight</div>
+          </div>
+        </div>
+        <button id="rateInfoBtn" class="quote-head-btn" type="button">View Rate Rules</button>
+      </div>
+
+      <div class="quote-panel">
+        <div class="quote-line"><span>Actual Weight</span><strong id="qActual">-- lb</strong></div>
+        <div class="quote-line"><span>Dimensional Weight</span><strong id="qVolume">-- lb</strong></div>
+        <div class="quote-line"><span>Billable Weight</span><strong id="qCharge">-- lb</strong></div>
+        <div class="quote-line"><span>Carrier Service</span><strong id="qCarrier">--</strong></div>
+
+        <div class="quote-price-row">
+          <div class="quote-price-label">Estimated Cost</div>
+          <div id="qPrice" class="quote-price pending">Waiting</div>
+        </div>
+      </div>
+
+      <div id="quoteTip" class="quote-tip">
+        Offline reference estimate only. Final carrier pricing may include negotiated rates, fuel, residential, demand, oversized-package, customs, and other surcharges.
+      </div>
+
+      <div class="quote-meta">
+        <span id="zoneChip" class="quote-chip">Zone: --</span>
+        <span id="deliveryChip" class="quote-chip">Delivery: --</span>
+      </div>
+    </section>
+  </div>
+
+  <section class="card shipping-card">
+    <div class="section-title-row">
+      <div>
+        <div class="section-title">Shipping Information</div>
+        <div class="section-sub">Enter sender and recipient details, then select a carrier and service</div>
+      </div>
+    </div>
+
+    <div class="shipping-grid">
+      <div class="form-box">
+        <div class="form-box-title">👤 Sender Information</div>
+
+        <div class="row2">
+          <div class="field">
+            <label>Full Name</label>
+            <input id="senderName" placeholder="Sender full name">
+          </div>
+          <div class="field">
+            <label>Phone</label>
+            <input id="senderPhone" placeholder="+1 555 123 4567">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Street Address</label>
+          <input id="senderStreet" placeholder="123 Main St, Apt / Suite">
+        </div>
+
+        <div class="address-grid">
+          <div class="field">
+            <label>City</label>
+            <input id="senderCity" placeholder="San Francisco">
+          </div>
+          <div class="field">
+            <label>State / Province / Region</label>
+            <input id="senderState" list="usStates" placeholder="CA">
+          </div>
+        </div>
+
+        <div class="address-grid">
+          <div class="field">
+            <label>ZIP / Postal Code</label>
+            <input id="senderPostal" placeholder="94105">
+          </div>
+          <div class="field">
+            <label>Country</label>
+            <select id="senderCountry">
+              <option value="US" selected>United States</option>
+              <option value="CA">Canada</option>
+              <option value="GB">United Kingdom</option>
+              <option value="DE">Germany</option>
+              <option value="FR">France</option>
+              <option value="AU">Australia</option>
+              <option value="JP">Japan</option>
+              <option value="SG">Singapore</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-box">
+        <div class="form-box-title">👤 Recipient Information</div>
+
+        <div class="row2">
+          <div class="field">
+            <label>Full Name</label>
+            <input id="receiverName" placeholder="Recipient full name">
+          </div>
+          <div class="field">
+            <label>Phone</label>
+            <input id="receiverPhone" placeholder="+1 555 987 6543">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Street Address</label>
+          <input id="receiverStreet" placeholder="456 Market St, Apt / Suite">
+        </div>
+
+        <div class="address-grid">
+          <div class="field">
+            <label>City</label>
+            <input id="receiverCity" placeholder="New York">
+          </div>
+          <div class="field">
+            <label>State / Province / Region</label>
+            <input id="receiverState" list="usStates" placeholder="NY">
+          </div>
+        </div>
+
+        <div class="address-grid">
+          <div class="field">
+            <label>ZIP / Postal Code</label>
+            <input id="receiverPostal" placeholder="10001">
+          </div>
+          <div class="field">
+            <label>Country</label>
+            <select id="receiverCountry">
+              <option value="US" selected>United States</option>
+              <option value="CA">Canada</option>
+              <option value="GB">United Kingdom</option>
+              <option value="DE">Germany</option>
+              <option value="FR">France</option>
+              <option value="AU">Australia</option>
+              <option value="JP">Japan</option>
+              <option value="SG">Singapore</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-box">
+        <div class="form-box-title">🚚 Carrier & Service</div>
+
+        <div class="field">
+          <label>Select Carrier</label>
+          <select id="carrier">
+            <option value="">Select Carrier</option>
+            <option value="UPS">UPS</option>
+            <option value="FedEx">FedEx</option>
+            <option value="USPS">USPS</option>
+            <option value="DHL">DHL Express</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Select Service</label>
+          <select id="service">
+            <option value="">Select Service</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Delivery Type</label>
+          <select id="deliveryType">
+            <option value="residential">Residential</option>
+            <option value="commercial">Commercial</option>
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <button id="clearFormBtn" class="btn ghost">Clear Form</button>
+          <button id="saveBtn" class="btn light">Save</button>
+          <button id="quoteBtn" class="btn primary">Get Quote</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<datalist id="usStates">
+  <option value="AL"><option value="AK"><option value="AZ"><option value="AR">
+  <option value="CA"><option value="CO"><option value="CT"><option value="DE">
+  <option value="FL"><option value="GA"><option value="HI"><option value="ID">
+  <option value="IL"><option value="IN"><option value="IA"><option value="KS">
+  <option value="KY"><option value="LA"><option value="ME"><option value="MD">
+  <option value="MA"><option value="MI"><option value="MN"><option value="MS">
+  <option value="MO"><option value="MT"><option value="NE"><option value="NV">
+  <option value="NH"><option value="NJ"><option value="NM"><option value="NY">
+  <option value="NC"><option value="ND"><option value="OH"><option value="OK">
+  <option value="OR"><option value="PA"><option value="RI"><option value="SC">
+  <option value="SD"><option value="TN"><option value="TX"><option value="UT">
+  <option value="VT"><option value="VA"><option value="WA"><option value="WV">
+  <option value="WI"><option value="WY"><option value="DC">
+</datalist>
+
+<div id="serialModal" class="modal-backdrop">
+  <div class="modal">
+    <h2>Connect K10 Serial</h2>
+    <p>
+      Click <b>Select Port</b>, then choose the COM port assigned to the K10.
+      This page reads the existing K10 diagnostic stream at <b>115200 baud</b>.
+    </p>
+    <div class="port-info">
+      Recommended browser: Chrome or Microsoft Edge.<br>
+      Supported diagnostic format:<br>
+      <code>state=PRESENT ... L/W/H(mm)=299/194/148 weight(g)=270 ...</code>
+    </div>
+    <div class="modal-actions">
+      <button id="cancelSerialBtn" class="btn ghost">Cancel</button>
+      <button id="chooseSerialBtn" class="btn primary">Select Port</button>
+    </div>
+  </div>
+</div>
+
+<div id="rateModal" class="modal-backdrop">
+  <div class="modal" style="width:min(780px,100%)">
+    <h2>International Rate Rules</h2>
+    <p>
+      This page is an offline prototype, not a live UPS, FedEx, USPS, or DHL rate API.
+      It follows common U.S. dimensional/billable-weight logic and then applies local reference
+      price bands for the selected carrier, service, ZIP/postal-code zone, and delivery type.
+    </p>
+
+    <div class="rule-note">
+      <b>UPS / FedEx / DHL:</b> dimensional weight uses rounded whole-inch dimensions and a
+      139 in³/lb divisor. Billable weight is the greater of actual weight and dimensional weight,
+      rounded up to a whole pound.<br><br>
+      <b>USPS:</b> this prototype applies USPS-style DIM weight only when the package exceeds
+      1 cubic foot (1,728 in³); otherwise billing is based on actual weight.
+    </div>
+
+    <div style="overflow:auto;margin-top:14px">
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="text-align:left;color:#6f8098">
+            <th style="padding:9px;border-bottom:1px solid #e3ebf5">Carrier</th>
+            <th style="padding:9px;border-bottom:1px solid #e3ebf5">Service</th>
+            <th style="padding:9px;border-bottom:1px solid #e3ebf5">Reference Base</th>
+            <th style="padding:9px;border-bottom:1px solid #e3ebf5">Reference / lb</th>
+          </tr>
+        </thead>
+        <tbody id="rateTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="modal-actions">
+      <button id="closeRateBtn" class="btn primary">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+
+  const KG_TO_LB = 2.2046226218;
+  const MM_PER_IN = 25.4;
+  const DIM_DIVISOR = 139;
+
+  const state = {
+    port:null,
+    reader:null,
+    keepReading:false,
+    connected:false,
+    latest:null,
+    buffer:'',
+    mapBuffer:[]
+  };
+
+  const matrixCells=[];
+  for(let i=0;i<64;i++){
+    const c=document.createElement('div');
+    c.className='cell';
+    $('#matrix').appendChild(c);
+    matrixCells.push(c);
+  }
+
+  const SERVICES = {
+    UPS: [
+      ['UPS Ground','UPS Ground'],
+      ['UPS 2nd Day Air','UPS 2nd Day Air'],
+      ['UPS Next Day Air','UPS Next Day Air']
+    ],
+    FedEx: [
+      ['FedEx Ground','FedEx Ground'],
+      ['FedEx 2Day','FedEx 2Day'],
+      ['FedEx Priority Overnight','FedEx Priority Overnight']
+    ],
+    USPS: [
+      ['USPS Ground Advantage','USPS Ground Advantage'],
+      ['USPS Priority Mail','USPS Priority Mail'],
+      ['USPS Priority Mail Express','USPS Priority Mail Express']
+    ],
+    DHL: [
+      ['DHL Express Worldwide','DHL Express Worldwide'],
+      ['DHL Express 12:00','DHL Express 12:00']
+    ]
+  };
+
+  // Offline reference rates for prototype demonstrations only.
+  // These are not current official carrier tariffs.
+  const RATE_MODELS = {
+    'UPS Ground':                {base:9.50, perLb:0.95, speed:1.00},
+    'UPS 2nd Day Air':          {base:21.00,perLb:1.85, speed:1.10},
+    'UPS Next Day Air':         {base:34.00,perLb:2.75, speed:1.18},
+    'FedEx Ground':             {base:9.25, perLb:0.92, speed:1.00},
+    'FedEx 2Day':               {base:20.50,perLb:1.80, speed:1.10},
+    'FedEx Priority Overnight': {base:35.00,perLb:2.85, speed:1.20},
+    'USPS Ground Advantage':    {base:5.75, perLb:0.62, speed:0.92},
+    'USPS Priority Mail':       {base:9.85, perLb:0.98, speed:1.00},
+    'USPS Priority Mail Express':{base:30.50,perLb:2.10,speed:1.12},
+    'DHL Express Worldwide':    {base:32.00,perLb:2.65, speed:1.16},
+    'DHL Express 12:00':        {base:39.00,perLb:3.10, speed:1.22}
+  };
+
+  function toast(msg){
+    const el=$('#toast');
+    el.textContent=msg;
+    el.classList.add('show');
+    clearTimeout(toast.t);
+    toast.t=setTimeout(()=>el.classList.remove('show'),2200);
+  }
+
+  function setSerialStatus(mode,text){
+    const s=$('#serialStatus');
+    s.className='status'+(mode?' '+mode:'');
+    $('#serialStatusText').textContent=text;
+  }
+
+  function resetMatrixCells(){
+    matrixCells.forEach(cell=>cell.style.background='#27a6f2');
+  }
+
+  function applyFallbackMatrix(mode=''){
+    $('#matrix').className='matrix'+(mode?' '+mode:'');
+    if(mode==='scanning'){
+      matrixCells.forEach((cell,idx)=>{
+        cell.style.background=(((idx%3)===0)||((idx%4)===1))?'#f7c948':'#27a6f2';
+      });
+      return;
+    }
+    if(mode==='detected'){
+      matrixCells.forEach((cell,idx)=>{
+        const row=Math.floor(idx/8),col=idx%8;
+        const active=row>=2&&row<=5&&col>=1&&col<=6;
+        cell.style.background=active?'#52e78e':'#27a6f2';
+      });
+      return;
+    }
+    resetMatrixCells();
+  }
+
+  function drawMatrixFromArray(arr){
+    if(!Array.isArray(arr)||arr.length!==64) return;
+    $('#matrix').className='matrix';
+    matrixCells.forEach((cell,idx)=>{
+      const v=Number(arr[idx])||0;
+      cell.style.background=v>0?'#52e78e':'#27a6f2';
+    });
+  }
+
+  function parseBinaryRow(line){
+    const t=line.trim();
+    if(/^[01]{8}$/.test(t)) return t.split('').map(ch=>ch==='1'?1:0);
+    return null;
+  }
+
+  function tryParseMatrixLine(line){
+    const text=line.trim();
+
+    if(text.startsWith('{')&&text.endsWith('}')){
+      try{
+        const obj=JSON.parse(text);
+        const arr=obj.matrix||obj.map||obj.grid||obj.cells;
+        if(Array.isArray(arr)&&arr.length===64){
+          drawMatrixFromArray(arr);
+          return true;
+        }
+      }catch(e){}
+    }
+
+    const kv=text.match(/^(matrix|map|grid|cells)\s*[:=]\s*(.+)$/i);
+    if(kv){
+      const raw=kv[2].trim();
+      if(/^[01]{64}$/.test(raw)){
+        drawMatrixFromArray(raw.split('').map(Number));
+        return true;
+      }
+      const parts=raw.split(/[,\s]+/).filter(Boolean);
+      if(parts.length===64&&parts.every(v=>!Number.isNaN(Number(v)))){
+        drawMatrixFromArray(parts.map(Number));
+        return true;
+      }
+    }
+
+    if(/MAP/i.test(text)&&/CHANGE/i.test(text)){
+      state.mapBuffer=[];
+      return true;
+    }
+
+    const row=parseBinaryRow(text);
+    if(row){
+      state.mapBuffer.push(row);
+      if(state.mapBuffer.length===8){
+        drawMatrixFromArray(state.mapBuffer.flat());
+        state.mapBuffer=[];
+      }
+      return true;
+    }
+
+    return false;
+  }
+
+  function fmt(v,n=2){
+    const x=Number(v);
+    return Number.isFinite(x)?x.toFixed(n):'--';
+  }
+
+  function mmToIn(mm){ return mm/MM_PER_IN; }
+  function kgToLb(kg){ return kg*KG_TO_LB; }
+
+  function roundedDimIn(valueIn){
+    return Math.max(1,Math.round(valueIn));
+  }
+
+  function dimensionalWeightLb(lengthIn,widthIn,heightIn,carrier='UPS'){
+    const l=roundedDimIn(lengthIn);
+    const w=roundedDimIn(widthIn);
+    const h=roundedDimIn(heightIn);
+    const cubic=l*w*h;
+
+    if(carrier==='USPS' && cubic<=1728){
+      return {dimLb:0,cubic,applies:false};
+    }
+
+    return {
+      dimLb:Math.ceil(cubic/DIM_DIVISOR),
+      cubic,
+      applies:true
+    };
+  }
+
+  function computeMeasurement(lengthMm,widthMm,heightMm,grams,carrierForRule='UPS'){
+    const lengthIn=mmToIn(lengthMm);
+    const widthIn=mmToIn(widthMm);
+    const heightIn=mmToIn(heightMm);
+    const actualLb=Math.max(0,grams/1000*KG_TO_LB);
+    const dim=dimensionalWeightLb(lengthIn,widthIn,heightIn,carrierForRule);
+    const billableLb=Math.max(1,Math.ceil(Math.max(actualLb,dim.dimLb)));
+
+    return {
+      length_mm:lengthMm,
+      width_mm:widthMm,
+      height_mm:heightMm,
+      length_in:lengthIn,
+      width_in:widthIn,
+      height_in:heightIn,
+      actual_weight_lb:actualLb,
+      dimensional_weight_lb:dim.dimLb,
+      billable_weight_lb:billableLb,
+      cubic_in:dim.cubic,
+      dim_applies:dim.applies
+    };
+  }
+
+  function clearMeasurement(){
+    state.latest=null;
+    $('#dims').textContent='-- × -- × -- in';
+    $('#actualWt').textContent='-- lb';
+    $('#volumeWt').textContent='-- lb';
+    $('#chargeWt').textContent='-- lb';
+    $('#qActual').textContent='-- lb';
+    $('#qVolume').textContent='-- lb';
+    $('#qCharge').textContent='-- lb';
+    $('#qCarrier').textContent='--';
+    $('#qPrice').textContent='Waiting';
+    $('#qPrice').className='quote-price pending';
+    $('#lastUpdate').textContent='--';
+    $('#measureHint').textContent=state.connected
+      ?'Waiting for a parcel'
+      :'Connect K10 and place a parcel on the platform';
+    $('#matrixCaption').textContent='Waiting for measurement data';
+    $('#zoneChip').textContent='Zone: --';
+    $('#deliveryChip').textContent='Delivery: --';
+    applyFallbackMatrix('');
+    state.mapBuffer=[];
+  }
+
+  function updateMeasurement(d){
+    state.latest=d;
+    $('#dims').textContent=`${fmt(d.length_in,1)} × ${fmt(d.width_in,1)} × ${fmt(d.height_in,1)} in`;
+    $('#actualWt').textContent=`${fmt(d.actual_weight_lb,2)} lb`;
+    $('#volumeWt').textContent=`${d.dim_applies?fmt(d.dimensional_weight_lb,2):'N/A'}${d.dim_applies?' lb':''}`;
+    $('#chargeWt').textContent=`${fmt(d.billable_weight_lb,2)} lb`;
+
+    $('#qActual').textContent=`${fmt(d.actual_weight_lb,2)} lb`;
+    $('#qVolume').textContent=d.dim_applies?`${fmt(d.dimensional_weight_lb,2)} lb`:'N/A';
+    $('#qCharge').textContent=`${fmt(d.billable_weight_lb,2)} lb`;
+
+    $('#measureHint').textContent='Current parcel measurement received';
+    $('#matrixCaption').textContent='K10 sensor active';
+    $('#lastUpdate').textContent=new Date().toLocaleString('en-US');
+    if(!state.mapBuffer.length) applyFallbackMatrix('detected');
+  }
+
+  function refreshCarrierWeightRule(){
+    if(!state.latest) return;
+    const c=$('#carrier').value||'UPS';
+    const m=computeMeasurement(
+      state.latest.length_mm,
+      state.latest.width_mm,
+      state.latest.height_mm,
+      state.latest.actual_weight_lb/KG_TO_LB*1000,
+      c
+    );
+    updateMeasurement(m);
+  }
+
+  function parseDiagnosticLine(line){
+    const stateMatch=line.match(/state=([A-Z]+)/i);
+    const dimMatch=line.match(/L\/W\/H\(mm\)=([\d.]+)\/([\d.]+)\/([\d.]+)/i);
+    const weightMatch=line.match(/weight\(g\)=([\d.-]+)/i);
+    const deviceState=stateMatch?stateMatch[1].toUpperCase():'';
+
+    if(deviceState==='LEARNING'){
+      $('#measureHint').textContent='K10 is learning the empty platform';
+      $('#matrixCaption').textContent='Initializing';
+      applyFallbackMatrix('scanning');
+      return;
+    }
+
+    if(deviceState==='WAITING'){
+      $('#measureHint').textContent='Waiting for a parcel';
+      $('#matrixCaption').textContent='Waiting for measurement data';
+      applyFallbackMatrix('');
+      return;
+    }
+
+    if(deviceState==='PRESENT'&&dimMatch&&weightMatch){
+      const lengthMm=parseFloat(dimMatch[1]);
+      const widthMm=parseFloat(dimMatch[2]);
+      const heightMm=parseFloat(dimMatch[3]);
+      const grams=parseFloat(weightMatch[1]);
+      const carrier=$('#carrier').value||'UPS';
+      updateMeasurement(computeMeasurement(lengthMm,widthMm,heightMm,grams,carrier));
+    }
+  }
+
+  async function readLoop(){
+    const decoder=new TextDecoder();
+    state.buffer='';
+
+    while(state.keepReading&&state.port?.readable){
+      state.reader=state.port.readable.getReader();
+      try{
+        while(state.keepReading){
+          const {value,done}=await state.reader.read();
+          if(done) break;
+          state.buffer+=decoder.decode(value,{stream:true});
+
+          let idx;
+          while((idx=state.buffer.indexOf('\n'))>=0){
+            const line=state.buffer.slice(0,idx).trim();
+            state.buffer=state.buffer.slice(idx+1);
+            if(line){
+              console.log('K10:',line);
+              if(tryParseMatrixLine(line)) continue;
+              parseDiagnosticLine(line);
+            }
+          }
+        }
+      }catch(err){
+        console.error(err);
+        if(state.keepReading){
+          setSerialStatus('error','Read Error');
+          toast('Serial read error');
+        }
+      }finally{
+        state.reader?.releaseLock();
+        state.reader=null;
+      }
+    }
+  }
+
+  async function connectSerial(){
+    if(!('serial' in navigator)){
+      toast('Web Serial is not supported. Use Chrome or Microsoft Edge.');
+      return;
+    }
+
+    try{
+      setSerialStatus('connecting','Connecting');
+      state.port=await navigator.serial.requestPort();
+      await state.port.open({baudRate:115200});
+      state.keepReading=true;
+      state.connected=true;
+      $('#serialModal').classList.remove('open');
+      $('#serialBtnText').textContent='Disconnect';
+      setSerialStatus('connected','Connected');
+      $('#measureHint').textContent='Waiting for K10 measurement data';
+      toast('K10 serial connected');
+      readLoop();
+    }catch(err){
+      console.error(err);
+      if(err.name!=='NotFoundError'){
+        setSerialStatus('error','Connection Failed');
+        toast('Serial connection failed');
+      }else{
+        setSerialStatus('','Not Connected');
+      }
+    }
+  }
+
+  async function disconnectSerial(){
+    try{
+      state.keepReading=false;
+      if(state.reader){try{await state.reader.cancel()}catch(e){}}
+      if(state.port){try{await state.port.close()}catch(e){}}
+    }finally{
+      state.port=null;
+      state.reader=null;
+      state.connected=false;
+      $('#serialBtnText').textContent='Connect Serial';
+      setSerialStatus('','Not Connected');
+      $('#measureHint').textContent='Connect K10 and place a parcel on the platform';
+      toast('Serial disconnected');
+    }
+  }
+
+  function showDemo(){
+    updateMeasurement(computeMeasurement(
+      312, 230, 141,
+      820,
+      $('#carrier').value||'UPS'
+    ));
+
+    $('#measureHint').textContent='Demo data';
+    $('#matrixCaption').textContent='Demo mode';
+    drawMatrixFromArray([
+      0,0,0,0,0,0,0,0,
+      0,0,1,1,1,1,1,0,
+      0,1,1,1,1,1,1,0,
+      1,1,1,1,1,1,1,1,
+      1,1,1,1,1,1,1,1,
+      0,1,1,1,1,1,1,0,
+      0,0,1,1,1,1,0,0,
+      0,0,0,0,0,0,0,0
+    ]);
+    toast('Demo data loaded');
+  }
+
+  function populateServices(){
+    const carrier=$('#carrier').value;
+    const sel=$('#service');
+    sel.innerHTML='<option value="">Select Service</option>';
+
+    (SERVICES[carrier]||[]).forEach(([value,label])=>{
+      const opt=document.createElement('option');
+      opt.value=value;
+      opt.textContent=label;
+      sel.appendChild(opt);
+    });
+
+    refreshCarrierWeightRule();
+  }
+
+  function formData(){
+    return {
+      sender:{
+        name:$('#senderName').value.trim(),
+        phone:$('#senderPhone').value.trim(),
+        street:$('#senderStreet').value.trim(),
+        city:$('#senderCity').value.trim(),
+        state:$('#senderState').value.trim(),
+        postal:$('#senderPostal').value.trim(),
+        country:$('#senderCountry').value
+      },
+      receiver:{
+        name:$('#receiverName').value.trim(),
+        phone:$('#receiverPhone').value.trim(),
+        street:$('#receiverStreet').value.trim(),
+        city:$('#receiverCity').value.trim(),
+        state:$('#receiverState').value.trim(),
+        postal:$('#receiverPostal').value.trim(),
+        country:$('#receiverCountry').value
+      },
+      carrier:$('#carrier').value,
+      service:$('#service').value,
+      deliveryType:$('#deliveryType').value
+    };
+  }
+
+  function saveForm(){
+    localStorage.setItem('parcel_shipping_form_intl_v2',JSON.stringify(formData()));
+    toast('Shipping information saved in this browser');
+  }
+
+  function restoreForm(){
+    try{
+      const d=JSON.parse(localStorage.getItem('parcel_shipping_form_intl_v2')||'null');
+      if(!d) return;
+
+      const ids = [
+        ['senderName',d.sender?.name],['senderPhone',d.sender?.phone],
+        ['senderStreet',d.sender?.street],['senderCity',d.sender?.city],
+        ['senderState',d.sender?.state],['senderPostal',d.sender?.postal],
+        ['receiverName',d.receiver?.name],['receiverPhone',d.receiver?.phone],
+        ['receiverStreet',d.receiver?.street],['receiverCity',d.receiver?.city],
+        ['receiverState',d.receiver?.state],['receiverPostal',d.receiver?.postal]
+      ];
+
+      ids.forEach(([id,val])=>$('#'+id).value=val||'');
+      $('#senderCountry').value=d.sender?.country||'US';
+      $('#receiverCountry').value=d.receiver?.country||'US';
+      $('#carrier').value=d.carrier||'';
+      populateServices();
+      $('#service').value=d.service||'';
+      $('#deliveryType').value=d.deliveryType||'residential';
+    }catch(e){}
+  }
+
+  function clearForm(){
+    [
+      '#senderName','#senderPhone','#senderStreet','#senderCity','#senderState','#senderPostal',
+      '#receiverName','#receiverPhone','#receiverStreet','#receiverCity','#receiverState','#receiverPostal'
+    ].forEach(id=>$(id).value='');
+
+    $('#senderCountry').value='US';
+    $('#receiverCountry').value='US';
+    $('#carrier').value='';
+    populateServices();
+    $('#deliveryType').value='residential';
+
+    localStorage.removeItem('parcel_shipping_form_intl_v2');
+    $('#qCarrier').textContent='--';
+    $('#qPrice').textContent='Waiting';
+    $('#qPrice').className='quote-price pending';
+    $('#zoneChip').textContent='Zone: --';
+    $('#deliveryChip').textContent='Delivery: --';
+    toast('Shipping form cleared');
+  }
+
+  function validateAddress(a){
+    return a.name&&a.phone&&a.street&&a.city&&a.postal&&a.country;
+  }
+
+  function usZoneFromPostal(origin,destination){
+    const a=(origin||'').replace(/\D/g,'');
+    const b=(destination||'').replace(/\D/g,'');
+    if(a.length<3||b.length<3) return 5;
+
+    const p1=parseInt(a.slice(0,3),10);
+    const p2=parseInt(b.slice(0,3),10);
+    const diff=Math.abs(p1-p2);
+
+    if(diff<=20) return 2;
+    if(diff<=60) return 3;
+    if(diff<=130) return 4;
+    if(diff<=220) return 5;
+    if(diff<=350) return 6;
+    if(diff<=500) return 7;
+    return 8;
+  }
+
+  function internationalZoneFactor(country){
+    const map={CA:1.35,MX:1.35,GB:1.75,DE:1.75,FR:1.75,JP:2.05,SG:2.05,AU:2.20};
+    return map[country]||1.90;
+  }
+
+  function estimateShippingPrice(data){
+    const model=RATE_MODELS[data.service];
+    if(!model) throw new Error('Select a carrier service');
+
+    const latest=state.latest;
+    if(!latest) throw new Error('Measure a parcel first');
+
+    const domesticUS=data.sender.country==='US'&&data.receiver.country==='US';
+
+    let zoneLabel;
+    let zoneFactor;
+
+    if(domesticUS){
+      const zone=usZoneFromPostal(data.sender.postal,data.receiver.postal);
+      zoneLabel='Zone '+zone;
+      zoneFactor=1+(zone-2)*0.075;
+    }else{
+      zoneLabel='International';
+      zoneFactor=internationalZoneFactor(data.receiver.country);
+    }
+
+    // Recalculate the carrier-specific billable weight.
+    const dim=dimensionalWeightLb(
+      latest.length_in,
+      latest.width_in,
+      latest.height_in,
+      data.carrier
+    );
+
+    const billableLb=Math.max(
+      1,
+      Math.ceil(Math.max(latest.actual_weight_lb,dim.dimLb))
+    );
+
+    let price=(model.base + Math.max(0,billableLb-1)*model.perLb);
+    price*=zoneFactor;
+    price*=model.speed;
+
+    // Prototype residential surcharge for private-carrier domestic shipments.
+    let residential=0;
+    if(
+      domesticUS &&
+      data.deliveryType==='residential' &&
+      (data.carrier==='UPS'||data.carrier==='FedEx')
+    ){
+      residential=4.75;
+      price+=residential;
+    }
+
+    // Prototype international processing allowance.
+    if(!domesticUS){
+      price+=data.carrier==='DHL'?8.50:12.00;
+    }
+
+    price=Math.round(price*100)/100;
+
+    return {
+      price,
+      zoneLabel,
+      billableLb,
+      dimLb:dim.dimLb,
+      dimApplies:dim.applies,
+      residential
+    };
+  }
+
+  function getQuote(){
+    const d=formData();
+
+    if(!state.latest){
+      toast('Measure a parcel first');
+      return;
+    }
+
+    if(!validateAddress(d.sender)||!validateAddress(d.receiver)){
+      toast('Complete the sender and recipient information');
+      return;
+    }
+
+    if(!d.carrier){
+      toast('Select a carrier');
+      return;
+    }
+
+    if(!d.service){
+      toast('Select a service');
+      return;
+    }
+
+    try{
+      const result=estimateShippingPrice(d);
+
+      // Refresh displayed billable weight using the selected carrier rule.
+      const adjusted=computeMeasurement(
+        state.latest.length_mm,
+        state.latest.width_mm,
+        state.latest.height_mm,
+        state.latest.actual_weight_lb/KG_TO_LB*1000,
+        d.carrier
+      );
+      updateMeasurement(adjusted);
+
+      $('#qCarrier').textContent=`${d.carrier==='DHL'?'DHL Express':d.carrier} · ${d.service}`;
+      $('#qCharge').textContent=`${fmt(result.billableLb,2)} lb`;
+      $('#qPrice').textContent=`$ ${result.price.toFixed(2)}`;
+      $('#qPrice').className='quote-price';
+      $('#zoneChip').textContent=`Zone: ${result.zoneLabel}`;
+      $('#deliveryChip').textContent=`Delivery: ${d.deliveryType==='residential'?'Residential':'Commercial'}`;
+
+      const dimText=result.dimApplies
+        ?`DIM weight ${result.dimLb.toFixed(0)} lb using 139 in³/lb`
+        :'USPS DIM weight not applied because package volume is 1 ft³ or less';
+
+      $('#quoteTip').textContent=
+        `${result.zoneLabel} · Billable weight ${result.billableLb.toFixed(0)} lb · ${dimText}. `+
+        `Offline reference estimate only; final carrier price may differ.`;
+
+      toast('Estimated shipping cost calculated');
+    }catch(err){
+      $('#qPrice').textContent='Estimate Failed';
+      $('#qPrice').className='quote-price pending';
+      $('#quoteTip').textContent='Estimate failed: '+err.message;
+      toast('Unable to calculate estimate');
+    }
+  }
+
+  function renderRateTable(){
+    const tbody=$('#rateTableBody');
+    tbody.innerHTML='';
+
+    Object.entries(RATE_MODELS).forEach(([service,r])=>{
+      let carrier='USPS';
+      if(service.startsWith('UPS')) carrier='UPS';
+      else if(service.startsWith('FedEx')) carrier='FedEx';
+      else if(service.startsWith('DHL')) carrier='DHL Express';
+
+      const tr=document.createElement('tr');
+      tr.innerHTML=`
+        <td style="padding:9px;border-bottom:1px solid #eef3f8;font-weight:800">${carrier}</td>
+        <td style="padding:9px;border-bottom:1px solid #eef3f8">${service}</td>
+        <td style="padding:9px;border-bottom:1px solid #eef3f8">$${r.base.toFixed(2)}</td>
+        <td style="padding:9px;border-bottom:1px solid #eef3f8">$${r.perLb.toFixed(2)}</td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  $('#carrier').addEventListener('change',populateServices);
+
+  $('#serialBtn').onclick=()=>{
+    if(state.connected) disconnectSerial();
+    else $('#serialModal').classList.add('open');
+  };
+
+  $('#cancelSerialBtn').onclick=()=>$('#serialModal').classList.remove('open');
+  $('#chooseSerialBtn').onclick=connectSerial;
+  $('#serialModal').onclick=e=>{
+    if(e.target.id==='serialModal') $('#serialModal').classList.remove('open');
+  };
+
+  $('#demoBtn').onclick=showDemo;
+  $('#clearMeasureBtn').onclick=clearMeasurement;
+  $('#saveBtn').onclick=saveForm;
+  $('#clearFormBtn').onclick=clearForm;
+  $('#quoteBtn').onclick=getQuote;
+
+  $('#rateInfoBtn').onclick=()=>{
+    renderRateTable();
+    $('#rateModal').classList.add('open');
+  };
+
+  $('#closeRateBtn').onclick=()=>$('#rateModal').classList.remove('open');
+  $('#rateModal').onclick=e=>{
+    if(e.target.id==='rateModal') $('#rateModal').classList.remove('open');
+  };
+
+  if('serial' in navigator){
+    navigator.serial.addEventListener('disconnect',()=>{
+      if(state.connected) disconnectSerial();
+    });
+  }
+
+  restoreForm();
+  clearMeasurement();
+})();
+</script>
+</body>
+</html>
